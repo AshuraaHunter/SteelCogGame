@@ -11,12 +11,9 @@ import javax.swing.JLabel;
 
 public class SteelCog extends JFrame implements KeyListener {
 	private AgentLime myAgentLime;
-	private Wall[] myWall;
-	private LavaWall myLavaWall;
 	private Finish myFinish;
 	
 	private JLabel AgentLimeLabel, FinishLabel;
-	private JLabel[] WallLabel, LavaWallLabel;
 	private ImageIcon AgentLimeImage, WallImage, LavaWallImage, FinishImage;
 	
 	private Container content;
@@ -31,8 +28,14 @@ public class SteelCog extends JFrame implements KeyListener {
 		AgentLimeLabel.setIcon(AgentLimeImage);
 		AgentLimeLabel.setSize(myAgentLime.getWidth(), myAgentLime.getHeight());
 		
-		myWall = new Wall[6];
-		WallLabel = new JLabel[6];
+		Wall[] myWall = new Wall[6];
+		for(int i=0; i<6; i++) {
+			  myWall[i] = new Wall();
+		}
+		JLabel[] WallLabel = new JLabel[6];
+		for(int i=0; i<6; i++) {
+			  WallLabel[i] = new JLabel();
+		}
 		WallImage = new ImageIcon(getClass().getResource(myWall[0].getFilename()));
 		for (int i = 0; i < WallLabel.length; i++) {
 			WallLabel[i].setIcon(WallImage);
@@ -63,10 +66,11 @@ public class SteelCog extends JFrame implements KeyListener {
 		for (int i = 0; i < WallLabel.length; i++) {
 			add(WallLabel[i]);
 		}
+		add(FinishLabel);
 		
 		AgentLimeLabel.setLocation(myAgentLime.getX(), myAgentLime.getY());
 		for (int i = 0; i < WallLabel.length; i++) {
-			WallLabel[i].setLocation((25*(i+1)), (25*(i+1)));
+			WallLabel[i].setLocation((25*(i+1)), (70*(i+1)));
 		}
 		FinishLabel.setLocation(myFinish.getX(), myFinish.getY());
 		
