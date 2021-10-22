@@ -10,6 +10,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 public class SteelCog extends JFrame implements KeyListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8926652988288523971L;
+	
 	private AgentLime myAgentLime;
 	private Finish myFinish;
 	
