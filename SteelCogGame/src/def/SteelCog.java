@@ -70,7 +70,7 @@ public class SteelCog extends JFrame implements KeyListener {
 		
 		AgentLimeLabel.setLocation(myAgentLime.getX(), myAgentLime.getY());
 		for (int i = 0; i < WallLabel.length; i++) {
-			WallLabel[i].setLocation((25*(i+1)), (70*(i+1)));
+			WallLabel[i].setLocation((50*(i+1)), (50*(i+1))); // work on positioning logic
 		}
 		FinishLabel.setLocation(myFinish.getX(), myFinish.getY());
 		
@@ -95,7 +95,8 @@ public class SteelCog extends JFrame implements KeyListener {
 		int ax = myAgentLime.getX();
 		int ay = myAgentLime.getY();
 		
-		// includes checking for passing boundaries
+		// need to setup collision down here (i.e. looping through each wall to check for overlap)
+		// not sure how to do finish collision yet
 		if (e.getKeyCode() == KeyEvent.VK_UP) {
 			ay -= GameProperties.CHARACTER_STEP;
 			if (ay + myAgentLime.getHeight() < 0) {
