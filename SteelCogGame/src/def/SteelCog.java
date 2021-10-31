@@ -16,10 +16,14 @@ public class SteelCog extends JFrame implements KeyListener {
 	private static final long serialVersionUID = 8926652988288523971L;
 	
 	private AgentLime myAgentLime;
+	private Wall[] myWall = new Wall[6];
 	private Finish myFinish;
 	
 	private JLabel AgentLimeLabel, FinishLabel;
+	private JLabel[] WallLabel = new JLabel[6];
 	private ImageIcon AgentLimeImage, WallImage, LavaWallImage, FinishImage;
+	
+	private boolean canMove;
 	
 	private Container content;
 	
@@ -33,12 +37,8 @@ public class SteelCog extends JFrame implements KeyListener {
 		AgentLimeLabel.setIcon(AgentLimeImage);
 		AgentLimeLabel.setSize(myAgentLime.getWidth(), myAgentLime.getHeight());
 		
-		Wall[] myWall = new Wall[6];
-		for(int i=0; i<6; i++) {
+		for(int i=0; i<myWall.length && i<WallLabel.length; i++) {
 			  myWall[i] = new Wall();
-		}
-		JLabel[] WallLabel = new JLabel[6];
-		for(int i=0; i<6; i++) {
 			  WallLabel[i] = new JLabel();
 		}
 		WallImage = new ImageIcon(getClass().getResource(myWall[0].getFilename()));
@@ -81,6 +81,8 @@ public class SteelCog extends JFrame implements KeyListener {
 		
 		content.addKeyListener(this);
 		content.setFocusable(true);
+		
+		canMove = true;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
@@ -103,24 +105,62 @@ public class SteelCog extends JFrame implements KeyListener {
 		// need to setup collision down here (i.e. looping through each wall to check for overlap)
 		// not sure how to do finish collision yet
 		if (e.getKeyCode() == KeyEvent.VK_UP) {
-			ay -= GameProperties.CHARACTER_STEP;
-			if (ay + myAgentLime.getHeight() < 0) {
-				ay = GameProperties.SCREEN_HEIGHT;
+			for (int i = 0; i < WallLabel.length; i++) {
+				if (ax + myAgentLime.getWidth() > WallLabel[i].getX() 
+						&& ax < WallLabel[i].getX() + WallLabel[i].getWidth() 
+						&& ay + myAgentLime.getHeight() - GameProperties.CHARACTER_STEP > WallLabel[i].getY() 
+						&& ay - GameProperties.CHARACTER_STEP < WallLabel[i].getY() + WallLabel[i].getHeight()) {
+					canMove = false;
+				}
+			}
+			if (canMove) {
+				ay -= GameProperties.CHARACTER_STEP;
+				if (ay + myAgentLime.getHeight() < 0) {
+					ay = GameProperties.SCREEN_HEIGHT;
+				}
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-			ay += GameProperties.CHARACTER_STEP;
-			if (ay > GameProperties.SCREEN_HEIGHT) {
-				ay = -1 * myAgentLime.getHeight();
+			for (int i = 0; i < WallLabel.length; i++) {
+				if (ax + myAgentLime.getWidth() > WallLabel[i].getX() 
+						&& ax < WallLabel[i].getX() + WallLabel[i].getWidth() 
+						&& ay + myAgentLime.getHeight() + GameProperties.CHARACTER_STEP > WallLabel[i].getY() 
+						&& ay + GameProperties.CHARACTER_STEP < WallLabel[i].getY() + WallLabel[i].getHeight()) {
+					canMove = false;
+				}
+			}
+			if (canMove) {
+				ay += GameProperties.CHARACTER_STEP;
+				if (ay > GameProperties.SCREEN_HEIGHT) {
+					ay = -1 * myAgentLime.getHeight();
+				}
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-			ax -= GameProperties.CHARACTER_STEP;
-			if (ax + myAgentLime.getWidth() < 0) {
-				ax = GameProperties.SCREEN_WIDTH;
+			for (int i = 0; i < WallLabel.length; i++) {
+				if (ax + myAgentLime.getWidth() - GameProperties.CHARACTER_STEP > WallLabel[i].getX() 
+						&& ax - GameProperties.CHARACTER_STEP < WallLabel[i].getX() + WallLabel[i].getWidth() 
+						&& ay + myAgentLime.getHeight() > WallLabel[i].getY() 
+						&& ay < WallLabel[i].getY() + WallLabel[i].getHeight()) {
+					canMove = false;
+				}
+			} if (canMove) {
+				ax -= GameProperties.CHARACTER_STEP;
+				if (ax + myAgentLime.getWidth() < 0) {
+					ax = GameProperties.SCREEN_WIDTH;
+				}
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			ax += GameProperties.CHARACTER_STEP;
-			if (ax > GameProperties.SCREEN_WIDTH) {
-				ax = -1 * myAgentLime.getWidth();
+			for (int i = 0; i < WallLabel.length; i++) {
+				if (ax + myAgentLime.getWidth() + GameProperties.CHARACTER_STEP > WallLabel[i].getX() 
+						&& ax + GameProperties.CHARACTER_STEP < WallLabel[i].getX() + WallLabel[i].getWidth() 
+						&& ay + myAgentLime.getHeight() > WallLabel[i].getY() 
+						&& ay < WallLabel[i].getY() + WallLabel[i].getHeight()) {
+					canMove = false;
+				}
+			} if (canMove) {
+				ax += GameProperties.CHARACTER_STEP;
+				if (ax > GameProperties.SCREEN_WIDTH) {
+					ax = -1 * myAgentLime.getWidth();
+				}
 			}
 		}
 		
@@ -128,6 +168,7 @@ public class SteelCog extends JFrame implements KeyListener {
 		myAgentLime.setY(ay);
 		
 		AgentLimeLabel.setLocation(myAgentLime.getX(), myAgentLime.getY());
+		canMove = true;
 	}
 
 	@Override
