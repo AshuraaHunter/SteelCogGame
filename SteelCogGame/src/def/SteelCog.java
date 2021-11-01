@@ -23,8 +23,6 @@ public class SteelCog extends JFrame implements KeyListener {
 	private JLabel[] WallLabel = new JLabel[6];
 	private ImageIcon AgentLimeImage, WallImage, LavaWallImage, FinishImage;
 	
-	private boolean canMove;
-	
 	private Container content;
 	
 	public SteelCog() {
@@ -82,7 +80,7 @@ public class SteelCog extends JFrame implements KeyListener {
 		content.addKeyListener(this);
 		content.setFocusable(true);
 		
-		canMove = true;
+		myAgentLime.setCanMove(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
@@ -110,10 +108,10 @@ public class SteelCog extends JFrame implements KeyListener {
 						&& ax < WallLabel[i].getX() + WallLabel[i].getWidth() 
 						&& ay + myAgentLime.getHeight() - GameProperties.CHARACTER_STEP > WallLabel[i].getY() 
 						&& ay - GameProperties.CHARACTER_STEP < WallLabel[i].getY() + WallLabel[i].getHeight()) {
-					canMove = false;
+					myAgentLime.setCanMove(false);
 				}
 			}
-			if (canMove) {
+			if (myAgentLime.getCanMove()==true) {
 				ay -= GameProperties.CHARACTER_STEP;
 				if (ay + myAgentLime.getHeight() < 0) {
 					ay = GameProperties.SCREEN_HEIGHT;
@@ -125,10 +123,10 @@ public class SteelCog extends JFrame implements KeyListener {
 						&& ax < WallLabel[i].getX() + WallLabel[i].getWidth() 
 						&& ay + myAgentLime.getHeight() + GameProperties.CHARACTER_STEP > WallLabel[i].getY() 
 						&& ay + GameProperties.CHARACTER_STEP < WallLabel[i].getY() + WallLabel[i].getHeight()) {
-					canMove = false;
+					myAgentLime.setCanMove(false);
 				}
 			}
-			if (canMove) {
+			if (myAgentLime.getCanMove()==true) {
 				ay += GameProperties.CHARACTER_STEP;
 				if (ay > GameProperties.SCREEN_HEIGHT) {
 					ay = -1 * myAgentLime.getHeight();
@@ -140,9 +138,9 @@ public class SteelCog extends JFrame implements KeyListener {
 						&& ax - GameProperties.CHARACTER_STEP < WallLabel[i].getX() + WallLabel[i].getWidth() 
 						&& ay + myAgentLime.getHeight() > WallLabel[i].getY() 
 						&& ay < WallLabel[i].getY() + WallLabel[i].getHeight()) {
-					canMove = false;
+					myAgentLime.setCanMove(false);
 				}
-			} if (canMove) {
+			} if (myAgentLime.getCanMove()==true) {
 				ax -= GameProperties.CHARACTER_STEP;
 				if (ax + myAgentLime.getWidth() < 0) {
 					ax = GameProperties.SCREEN_WIDTH;
@@ -154,9 +152,9 @@ public class SteelCog extends JFrame implements KeyListener {
 						&& ax + GameProperties.CHARACTER_STEP < WallLabel[i].getX() + WallLabel[i].getWidth() 
 						&& ay + myAgentLime.getHeight() > WallLabel[i].getY() 
 						&& ay < WallLabel[i].getY() + WallLabel[i].getHeight()) {
-					canMove = false;
+					myAgentLime.setCanMove(false);
 				}
-			} if (canMove) {
+			} if (myAgentLime.getCanMove()==true) {
 				ax += GameProperties.CHARACTER_STEP;
 				if (ax > GameProperties.SCREEN_WIDTH) {
 					ax = -1 * myAgentLime.getWidth();
@@ -168,7 +166,7 @@ public class SteelCog extends JFrame implements KeyListener {
 		myAgentLime.setY(ay);
 		
 		AgentLimeLabel.setLocation(myAgentLime.getX(), myAgentLime.getY());
-		canMove = true;
+		myAgentLime.setCanMove(true);
 	}
 
 	@Override
