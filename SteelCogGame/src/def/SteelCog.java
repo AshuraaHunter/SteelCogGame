@@ -2,7 +2,6 @@ package def;
 
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -21,10 +20,12 @@ public class SteelCog extends JFrame implements KeyListener {
 	
 	private AgentLime myAgentLime;
 	private Wall[] myWall = new Wall[6];
+	private LavaWall[] myLavaWall = new LavaWall[3];
 	private Finish myFinish;
 	
 	private JLabel AgentLimeLabel, FinishLabel, TimeLabel;
 	private JLabel[] WallLabel = new JLabel[6];
+	private JLabel[] LavaWallLabel = new JLabel[3];
 	private ImageIcon AgentLimeImage, WallImage, LavaWallImage, FinishImage;
 	
 	private Timer time;
@@ -58,6 +59,19 @@ public class SteelCog extends JFrame implements KeyListener {
 			}
 		}
 		
+		for(int i=0; i<myLavaWall.length && i<LavaWallLabel.length; i++) {
+			  myLavaWall[i] = new LavaWall();
+			  LavaWallLabel[i] = new JLabel();
+			  myLavaWall[i].setLavaWallLabel(LavaWallLabel[i]);
+			  myLavaWall[i].setAgentLime(myAgentLime);
+			  myLavaWall[i].setAgentLimeLabel(AgentLimeLabel);
+		}
+		LavaWallImage = new ImageIcon(getClass().getResource(myLavaWall[0].getFilename()));
+		for (int i = 0; i < LavaWallLabel.length; i++) {
+			LavaWallLabel[i].setIcon(LavaWallImage);
+			LavaWallLabel[i].setSize(myLavaWall[i].getWidth(),myLavaWall[i].getHeight());
+		}
+		
 		myFinish = new Finish();
 		FinishLabel = new JLabel();
 		FinishImage = new ImageIcon(getClass().getResource(myFinish.getFilename()));
@@ -77,6 +91,9 @@ public class SteelCog extends JFrame implements KeyListener {
 		add(AgentLimeLabel);
 		for (int i = 0; i < WallLabel.length; i++) {
 			add(WallLabel[i]);
+		}
+		for (int i = 0; i < LavaWallLabel.length; i++) {
+			add(LavaWallLabel[i]);
 		}
 		add(FinishLabel);
 		
@@ -107,12 +124,16 @@ public class SteelCog extends JFrame implements KeyListener {
 		for (int i = 0; i < WallLabel.length; i++) {
 			WallLabel[i].setLocation((50*(i+1)), (50*(i+1))); // work on positioning logic
 		}
+		for (int i = 0; i < LavaWallLabel.length; i++) {
+			myLavaWall[i].setX((int)((GameProperties.SCREEN_WIDTH*0.32)+(int)(i*(myLavaWall[i].getWidth()+25))));
+			myLavaWall[i].setY(50+(i*50));
+			myLavaWall[i].move();
+		}
 		FinishLabel.setLocation(myFinish.getX(), myFinish.getY());
 		
 		content.addKeyListener(this);
 		content.setFocusable(true);
 		
-		myAgentLime.setCanMove(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
