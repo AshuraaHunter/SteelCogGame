@@ -94,7 +94,6 @@ public class LavaWall extends Sprite implements Runnable {
 	
 	private void detectCollision() {
 		if (this.r.intersects(myAgentLime.getRectangle())) {
-			this.moving = false;
 			myAgentLime.setIsAlive(false);
 		}
 	}

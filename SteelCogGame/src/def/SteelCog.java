@@ -28,12 +28,15 @@ public class SteelCog extends JFrame implements KeyListener {
 	private JLabel[] LavaWallLabel = new JLabel[3];
 	private ImageIcon AgentLimeImage, WallImage, LavaWallImage, FinishImage;
 	
-	private Timer time;
+	private int score = 10000;
+	
+	private Timer time, gameCheck;
 	private int timeLeft = 99;
 	private final int timePause = 1000; // delay in milliseconds before timer start
 	private final int timeInterval = 1000; // delay in milliseconds for iteration of timer
 	
 	private Container content;
+	private PopUpMessage popup;
 	
 	public SteelCog() {
 		super("Steel Cog"); // window title
@@ -105,20 +108,37 @@ public class SteelCog extends JFrame implements KeyListener {
 		TimeLabel.setLocation((int)(GameProperties.SCREEN_WIDTH*.46),10);
 		
 		time = new Timer();
+		gameCheck = new Timer();
 		TimeLabel.setText(Integer.toString(timeLeft));
         time.scheduleAtFixedRate(new TimerTask() {
             public void run() {
-                if (timeLeft == 1) {
+            	if (timeLeft == 1) {
                     timeLeft--;
                     TimeLabel.setText(Integer.toString(timeLeft));
                     time.cancel();
-                    // game over
+                    gameCheck.cancel();
+                    gameOver(score,myAgentLime.getIsAlive(),true);
                 } else {
                     timeLeft--;
                     TimeLabel.setText(Integer.toString(timeLeft));
                 }
             }
         }, timePause, timeInterval);
+        gameCheck.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				if (!myAgentLime.getIsAlive()) {
+            		time.cancel();
+            		gameCheck.cancel();
+            		myAgentLime.setCanMove(false);
+            		for (int i=0; i<myLavaWall.length && i<LavaWallLabel.length; i++) {
+            			myLavaWall[i].setMoving(false);
+            		}
+            		gameOver(score,myAgentLime.getIsAlive(),false);
+            	}
+			}
+        },0,1);
 		
 		AgentLimeLabel.setLocation(myAgentLime.getX(), myAgentLime.getY());
 		for (int i = 0; i < WallLabel.length; i++) {
@@ -155,6 +175,9 @@ public class SteelCog extends JFrame implements KeyListener {
 		
 		// need to setup collision down here (i.e. looping through each wall to check for overlap)
 		// not sure how to do finish collision yet
+		if (!myAgentLime.getIsAlive()) {
+			myAgentLime.setCanMove(false);
+		}
 		if (e.getKeyCode() == KeyEvent.VK_UP) {
 			for (int i = 0; i < WallLabel.length; i++) {
 				if (ax + myAgentLime.getWidth() > WallLabel[i].getX() 
@@ -164,7 +187,7 @@ public class SteelCog extends JFrame implements KeyListener {
 					myAgentLime.setCanMove(false);
 				}
 			}
-			if (myAgentLime.getCanMove()==true) {
+			if (myAgentLime.getCanMove()) {
 				ay -= GameProperties.CHARACTER_STEP;
 				if (ay + myAgentLime.getHeight() < 0) {
 					ay = GameProperties.SCREEN_HEIGHT;
@@ -179,7 +202,7 @@ public class SteelCog extends JFrame implements KeyListener {
 					myAgentLime.setCanMove(false);
 				}
 			}
-			if (myAgentLime.getCanMove()==true) {
+			if (myAgentLime.getCanMove()) {
 				ay += GameProperties.CHARACTER_STEP;
 				if (ay > GameProperties.SCREEN_HEIGHT) {
 					ay = -1 * myAgentLime.getHeight();
@@ -193,7 +216,7 @@ public class SteelCog extends JFrame implements KeyListener {
 						&& ay < WallLabel[i].getY() + WallLabel[i].getHeight()) {
 					myAgentLime.setCanMove(false);
 				}
-			} if (myAgentLime.getCanMove()==true) {
+			} if (myAgentLime.getCanMove()) {
 				ax -= GameProperties.CHARACTER_STEP;
 				if (ax + myAgentLime.getWidth() < 0) {
 					ax = GameProperties.SCREEN_WIDTH;
@@ -207,7 +230,7 @@ public class SteelCog extends JFrame implements KeyListener {
 						&& ay < WallLabel[i].getY() + WallLabel[i].getHeight()) {
 					myAgentLime.setCanMove(false);
 				}
-			} if (myAgentLime.getCanMove()==true) {
+			} if (myAgentLime.getCanMove()) {
 				ax += GameProperties.CHARACTER_STEP;
 				if (ax > GameProperties.SCREEN_WIDTH) {
 					ax = -1 * myAgentLime.getWidth();
@@ -226,5 +249,10 @@ public class SteelCog extends JFrame implements KeyListener {
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public void gameOver(int score,boolean isAlive,boolean isTimeOut) {
+		popup = new PopUpMessage(score,isAlive,isTimeOut);
+		popup.displayGUI();
 	}
 }
