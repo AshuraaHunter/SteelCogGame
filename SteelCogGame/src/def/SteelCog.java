@@ -2,8 +2,12 @@ package def;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -19,9 +23,14 @@ public class SteelCog extends JFrame implements KeyListener {
 	private Wall[] myWall = new Wall[6];
 	private Finish myFinish;
 	
-	private JLabel AgentLimeLabel, FinishLabel;
+	private JLabel AgentLimeLabel, FinishLabel, TimeLabel;
 	private JLabel[] WallLabel = new JLabel[6];
 	private ImageIcon AgentLimeImage, WallImage, LavaWallImage, FinishImage;
+	
+	private Timer time;
+	private int timeLeft = 99;
+	private final int timePause = 1000; // delay in milliseconds before timer start
+	private final int timeInterval = 1000; // delay in milliseconds for iteration of timer
 	
 	private Container content;
 	
@@ -70,6 +79,29 @@ public class SteelCog extends JFrame implements KeyListener {
 			add(WallLabel[i]);
 		}
 		add(FinishLabel);
+		
+		TimeLabel = new JLabel();
+		add(TimeLabel);
+		TimeLabel.setForeground(Color.white);
+		TimeLabel.setFont(new Font("Power Red and Green",Font.BOLD,40));
+		TimeLabel.setSize(72,36);
+		TimeLabel.setLocation((int)(GameProperties.SCREEN_WIDTH*.46),10);
+		
+		time = new Timer();
+		TimeLabel.setText(Integer.toString(timeLeft));
+        time.scheduleAtFixedRate(new TimerTask() {
+            public void run() {
+                if (timeLeft == 1) {
+                    timeLeft--;
+                    TimeLabel.setText(Integer.toString(timeLeft));
+                    time.cancel();
+                    // game over
+                } else {
+                    timeLeft--;
+                    TimeLabel.setText(Integer.toString(timeLeft));
+                }
+            }
+        }, timePause, timeInterval);
 		
 		AgentLimeLabel.setLocation(myAgentLime.getX(), myAgentLime.getY());
 		for (int i = 0; i < WallLabel.length; i++) {
