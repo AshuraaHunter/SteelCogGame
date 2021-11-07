@@ -45,7 +45,7 @@ public class PopUpMessage {
 
     public void displayGUI() {
         JOptionPane.showMessageDialog(
-            null, getPanel(), "Output : ",
+            null, getPanel(), "Results",
                 JOptionPane.INFORMATION_MESSAGE);
     }
 

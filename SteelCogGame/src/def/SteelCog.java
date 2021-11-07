@@ -254,5 +254,6 @@ public class SteelCog extends JFrame implements KeyListener {
 	public void gameOver(int score,boolean isAlive,boolean isTimeOut) {
 		popup = new PopUpMessage(score,isAlive,isTimeOut);
 		popup.displayGUI();
+		System.exit(0);
 	}
 }
