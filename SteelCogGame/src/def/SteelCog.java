@@ -29,6 +29,7 @@ public class SteelCog extends JFrame implements KeyListener {
 	private ImageIcon AgentLimeImage, WallImage, LavaWallImage, FinishImage;
 	
 	private int score = 10000;
+	private int dimensionCnt = 0; // tracks the amount of times the player has phased across dimensions
 	
 	private Timer time, gameCheck;
 	private int timeLeft = 99;
@@ -191,6 +192,8 @@ public class SteelCog extends JFrame implements KeyListener {
 				ay -= GameProperties.CHARACTER_STEP;
 				if (ay + myAgentLime.getHeight() < 0) {
 					ay = GameProperties.SCREEN_HEIGHT;
+					dimensionCnt++;
+					if (dimensionCnt==2) {score+=5000;}
 				}
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
@@ -206,6 +209,8 @@ public class SteelCog extends JFrame implements KeyListener {
 				ay += GameProperties.CHARACTER_STEP;
 				if (ay > GameProperties.SCREEN_HEIGHT) {
 					ay = -1 * myAgentLime.getHeight();
+					dimensionCnt++;
+					if (dimensionCnt==2) {score+=5000;}
 				}
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
@@ -220,6 +225,8 @@ public class SteelCog extends JFrame implements KeyListener {
 				ax -= GameProperties.CHARACTER_STEP;
 				if (ax + myAgentLime.getWidth() < 0) {
 					ax = GameProperties.SCREEN_WIDTH;
+					dimensionCnt++;
+					if (dimensionCnt==2) {score+=5000;}
 				}
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
@@ -234,6 +241,8 @@ public class SteelCog extends JFrame implements KeyListener {
 				ax += GameProperties.CHARACTER_STEP;
 				if (ax > GameProperties.SCREEN_WIDTH) {
 					ax = -1 * myAgentLime.getWidth();
+					dimensionCnt++;
+					if (dimensionCnt==2) {score+=5000;}
 				}
 			}
 		}
