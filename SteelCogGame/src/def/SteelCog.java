@@ -38,6 +38,7 @@ public class SteelCog extends JFrame implements KeyListener {
 	
 	private Container content;
 	private PopUpMessage popup;
+	private GameSQLite database;
 	
 	public SteelCog() {
 		super("Steel Cog"); // window title
@@ -263,6 +264,8 @@ public class SteelCog extends JFrame implements KeyListener {
 	public void gameOver(int score,boolean isAlive,boolean isTimeOut) {
 		popup = new PopUpMessage(score,isAlive,isTimeOut);
 		popup.displayGUI();
+		database = new GameSQLite(score);
+		database.Interact(score);
 		System.exit(0);
 	}
 }
