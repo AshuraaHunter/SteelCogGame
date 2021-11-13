@@ -210,13 +210,6 @@ public class SteelCog extends JFrame implements KeyListener {
 					ay = GameProperties.SCREEN_HEIGHT;
 					dimensionCnt++;
 					if (dimensionCnt==3) {score+=5000;}
-				} else if (myFinish.getVisible() 
-						&& ax + myAgentLime.getWidth() > FinishLabel.getX() 
-						&& ax < FinishLabel.getX() + FinishLabel.getWidth() 
-						&& ay + myAgentLime.getHeight() - GameProperties.CHARACTER_STEP > FinishLabel.getY() 
-						&& ay - GameProperties.CHARACTER_STEP < FinishLabel.getY() + FinishLabel.getHeight()) {
-					score+=(50000+(timeLeft*1000));
-					won = true;
 				}
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
@@ -234,13 +227,6 @@ public class SteelCog extends JFrame implements KeyListener {
 					ay = -1 * myAgentLime.getHeight();
 					dimensionCnt++;
 					if (dimensionCnt==3) {score+=5000;}
-				} else if (myFinish.getVisible() 
-						&& ax + myAgentLime.getWidth() > FinishLabel.getX() 
-						&& ax < FinishLabel.getX() + FinishLabel.getWidth() 
-						&& ay + myAgentLime.getHeight() + GameProperties.CHARACTER_STEP > FinishLabel.getY() 
-						&& ay + GameProperties.CHARACTER_STEP < FinishLabel.getY() + FinishLabel.getHeight()) {
-					score+=(50000+(timeLeft*1000));
-					won = true;
 				}
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
@@ -252,43 +238,29 @@ public class SteelCog extends JFrame implements KeyListener {
 						|| ax - GameProperties.CHARACTER_STEP < 0) {
 					myAgentLime.setCanMove(false);
 				}
-			} if (myAgentLime.getCanMove()) {
-				ax -= GameProperties.CHARACTER_STEP;
-				if (myFinish.getVisible() 
-						&& ax + myAgentLime.getWidth() - GameProperties.CHARACTER_STEP > FinishLabel.getX() 
-						&& ax - GameProperties.CHARACTER_STEP < FinishLabel.getX() + FinishLabel.getWidth() 
-						&& ay + myAgentLime.getHeight() > FinishLabel.getY() 
-						&& ay < FinishLabel.getY() + FinishLabel.getHeight()) {
-					score+=(50000+(timeLeft*1000));
-					won = true;
-				}
-			}
+			} if (myAgentLime.getCanMove()) {ax -= GameProperties.CHARACTER_STEP;}
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			for (int i = 0; i < WallLabel.length; i++) {
 				if (ax + myAgentLime.getWidth() + GameProperties.CHARACTER_STEP > WallLabel[i].getX() 
 						&& ax + GameProperties.CHARACTER_STEP < WallLabel[i].getX() + WallLabel[i].getWidth() 
 						&& ay + myAgentLime.getHeight() > WallLabel[i].getY() 
 						&& ay < WallLabel[i].getY() + WallLabel[i].getHeight() 
-						|| ax + GameProperties.CHARACTER_STEP > GameProperties.SCREEN_WIDTH) {
+						|| ax + myAgentLime.getWidth() + GameProperties.CHARACTER_STEP >= GameProperties.SCREEN_WIDTH) {
 					myAgentLime.setCanMove(false);
 				}
-			} if (myAgentLime.getCanMove()) {
-				ax += GameProperties.CHARACTER_STEP;
-				if (myFinish.getVisible() 
-						&& ax + myAgentLime.getWidth() + GameProperties.CHARACTER_STEP > FinishLabel.getX() 
-						&& ax + GameProperties.CHARACTER_STEP < FinishLabel.getX() + FinishLabel.getWidth() 
-						&& ay + myAgentLime.getHeight() > FinishLabel.getY() 
-						&& ay < FinishLabel.getY() + FinishLabel.getHeight()) {
-					score+=(50000+(timeLeft*1000));
-					won = true;
-				}
-			}
+			} if (myAgentLime.getCanMove()) {ax += GameProperties.CHARACTER_STEP;}
 		}
 		
 		myAgentLime.setX(ax);
 		myAgentLime.setY(ay);
 		
 		AgentLimeLabel.setLocation(myAgentLime.getX(), myAgentLime.getY());
+		
+		if (myFinish.getVisible() && myAgentLime.r.intersects(myFinish.getRectangle())) {
+			score+=(50000+(timeLeft*1000));
+			won = true;
+		}
+		
 		myAgentLime.setCanMove(true);
 	}
 
