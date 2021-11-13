@@ -8,9 +8,16 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class PopUpMessage {
+	protected String name;
 	protected int score;
 	protected boolean isAlive, isTimeOut;
 	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
     public int getScore() {
 		return score;
 	}
@@ -31,13 +38,15 @@ public class PopUpMessage {
 	}
 
 	public PopUpMessage() {
+		this.name = "undefined";
 		this.score = 0;
 		this.isAlive = false;
 		this.isTimeOut = false;
 	}
 	
-	public PopUpMessage(int score, boolean isAlive, boolean isTimeOut) {
+	public PopUpMessage(String name, int score, boolean isAlive, boolean isTimeOut) {
 		super();
+		this.name = name;
 		this.score = score;
 		this.isAlive = isAlive;
 		this.isTimeOut = isTimeOut;

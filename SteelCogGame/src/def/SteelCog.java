@@ -11,6 +11,7 @@ import java.util.TimerTask;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 public class SteelCog extends JFrame implements KeyListener {
 	/**
@@ -28,13 +29,20 @@ public class SteelCog extends JFrame implements KeyListener {
 	private JLabel[] LavaWallLabel = new JLabel[3];
 	private ImageIcon AgentLimeImage, WallImage, LavaWallImage, FinishImage;
 	
+	private int[] xArray = new int[] {100,-100,560,40,560,590};
+	private int[] yArray = new int[] {370,370,400,40,0,100};
+	
 	private int score = 10000;
 	private int dimensionCnt = 0; // tracks the amount of times the player has phased across dimensions
+	
+	private String name;
 	
 	private Timer time, gameCheck;
 	private int timeLeft = 99;
 	private final int timePause = 1000; // delay in milliseconds before timer start
 	private final int timeInterval = 1000; // delay in milliseconds for iteration of timer
+	
+	private boolean won = false;
 	
 	private Container content;
 	private PopUpMessage popup;
@@ -43,6 +51,8 @@ public class SteelCog extends JFrame implements KeyListener {
 	public SteelCog() {
 		super("Steel Cog"); // window title
 		setSize(GameProperties.SCREEN_WIDTH, GameProperties.SCREEN_HEIGHT);
+		
+		name = JOptionPane.showInputDialog("Please enter your name.");
 		
 		myAgentLime = new AgentLime();
 		AgentLimeLabel = new JLabel();
@@ -87,8 +97,13 @@ public class SteelCog extends JFrame implements KeyListener {
 		content.setBackground(Color.black);
 		setLayout(null);
 		
-		myAgentLime.setX(100);
+		myAgentLime.setX(50);
 		myAgentLime.setY(500);
+		
+		for (int i = 0; i < myWall.length; i++) {
+			myWall[i].setX(xArray[i]);
+			myWall[i].setY(yArray[i]);
+		}
 		
 		myFinish.setX(700);
 		myFinish.setY(50);
@@ -119,7 +134,7 @@ public class SteelCog extends JFrame implements KeyListener {
                     TimeLabel.setText(Integer.toString(timeLeft));
                     time.cancel();
                     gameCheck.cancel();
-                    gameOver(score,myAgentLime.getIsAlive(),true);
+                    gameOver(name,score,myAgentLime.getIsAlive(),true);
                 } else {
                     timeLeft--;
                     TimeLabel.setText(Integer.toString(timeLeft));
@@ -130,23 +145,23 @@ public class SteelCog extends JFrame implements KeyListener {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				if (!myAgentLime.getIsAlive()) {
+				if (won==true || !myAgentLime.getIsAlive()) {
             		time.cancel();
             		gameCheck.cancel();
             		myAgentLime.setCanMove(false);
             		for (int i=0; i<myLavaWall.length && i<LavaWallLabel.length; i++) {
             			myLavaWall[i].setMoving(false);
             		}
-            		gameOver(score,myAgentLime.getIsAlive(),false);
+            		gameOver(name,score,myAgentLime.getIsAlive(),false);
             	}
 			}
         },0,1);
 		
 		AgentLimeLabel.setLocation(myAgentLime.getX(), myAgentLime.getY());
 		for (int i = 0; i < WallLabel.length; i++) {
-			WallLabel[i].setLocation((50*(i+1)), (50*(i+1))); // work on positioning logic
+			WallLabel[i].setLocation(myWall[i].getX(),myWall[i].getY()); // work on positioning logic
 		}
-		for (int i = 0; i < LavaWallLabel.length; i++) {
+		for (int i = 0; i < myLavaWall.length; i++) {
 			myLavaWall[i].setX((int)((GameProperties.SCREEN_WIDTH*0.32)+(int)(i*(myLavaWall[i].getWidth()+25))));
 			myLavaWall[i].setY(50+(i*50));
 			myLavaWall[i].move();
@@ -181,7 +196,7 @@ public class SteelCog extends JFrame implements KeyListener {
 			myAgentLime.setCanMove(false);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_UP) {
-			for (int i = 0; i < WallLabel.length; i++) {
+			for (int i = 0; i < myWall.length; i++) {
 				if (ax + myAgentLime.getWidth() > WallLabel[i].getX() 
 						&& ax < WallLabel[i].getX() + WallLabel[i].getWidth() 
 						&& ay + myAgentLime.getHeight() - GameProperties.CHARACTER_STEP > WallLabel[i].getY() 
@@ -194,7 +209,14 @@ public class SteelCog extends JFrame implements KeyListener {
 				if (ay + myAgentLime.getHeight() < 0) {
 					ay = GameProperties.SCREEN_HEIGHT;
 					dimensionCnt++;
-					if (dimensionCnt==2) {score+=5000;}
+					if (dimensionCnt==3) {score+=5000;}
+				} else if (myFinish.getVisible() 
+						&& ax + myAgentLime.getWidth() > FinishLabel.getX() 
+						&& ax < FinishLabel.getX() + FinishLabel.getWidth() 
+						&& ay + myAgentLime.getHeight() - GameProperties.CHARACTER_STEP > FinishLabel.getY() 
+						&& ay - GameProperties.CHARACTER_STEP < FinishLabel.getY() + FinishLabel.getHeight()) {
+					score+=(50000+(timeLeft*1000));
+					won = true;
 				}
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
@@ -211,7 +233,14 @@ public class SteelCog extends JFrame implements KeyListener {
 				if (ay > GameProperties.SCREEN_HEIGHT) {
 					ay = -1 * myAgentLime.getHeight();
 					dimensionCnt++;
-					if (dimensionCnt==2) {score+=5000;}
+					if (dimensionCnt==3) {score+=5000;}
+				} else if (myFinish.getVisible() 
+						&& ax + myAgentLime.getWidth() > FinishLabel.getX() 
+						&& ax < FinishLabel.getX() + FinishLabel.getWidth() 
+						&& ay + myAgentLime.getHeight() + GameProperties.CHARACTER_STEP > FinishLabel.getY() 
+						&& ay + GameProperties.CHARACTER_STEP < FinishLabel.getY() + FinishLabel.getHeight()) {
+					score+=(50000+(timeLeft*1000));
+					won = true;
 				}
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
@@ -219,15 +248,19 @@ public class SteelCog extends JFrame implements KeyListener {
 				if (ax + myAgentLime.getWidth() - GameProperties.CHARACTER_STEP > WallLabel[i].getX() 
 						&& ax - GameProperties.CHARACTER_STEP < WallLabel[i].getX() + WallLabel[i].getWidth() 
 						&& ay + myAgentLime.getHeight() > WallLabel[i].getY() 
-						&& ay < WallLabel[i].getY() + WallLabel[i].getHeight()) {
+						&& ay < WallLabel[i].getY() + WallLabel[i].getHeight() 
+						|| ax - GameProperties.CHARACTER_STEP < 0) {
 					myAgentLime.setCanMove(false);
 				}
 			} if (myAgentLime.getCanMove()) {
 				ax -= GameProperties.CHARACTER_STEP;
-				if (ax + myAgentLime.getWidth() < 0) {
-					ax = GameProperties.SCREEN_WIDTH;
-					dimensionCnt++;
-					if (dimensionCnt==2) {score+=5000;}
+				if (myFinish.getVisible() 
+						&& ax + myAgentLime.getWidth() - GameProperties.CHARACTER_STEP > FinishLabel.getX() 
+						&& ax - GameProperties.CHARACTER_STEP < FinishLabel.getX() + FinishLabel.getWidth() 
+						&& ay + myAgentLime.getHeight() > FinishLabel.getY() 
+						&& ay < FinishLabel.getY() + FinishLabel.getHeight()) {
+					score+=(50000+(timeLeft*1000));
+					won = true;
 				}
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
@@ -235,15 +268,19 @@ public class SteelCog extends JFrame implements KeyListener {
 				if (ax + myAgentLime.getWidth() + GameProperties.CHARACTER_STEP > WallLabel[i].getX() 
 						&& ax + GameProperties.CHARACTER_STEP < WallLabel[i].getX() + WallLabel[i].getWidth() 
 						&& ay + myAgentLime.getHeight() > WallLabel[i].getY() 
-						&& ay < WallLabel[i].getY() + WallLabel[i].getHeight()) {
+						&& ay < WallLabel[i].getY() + WallLabel[i].getHeight() 
+						|| ax + GameProperties.CHARACTER_STEP > GameProperties.SCREEN_WIDTH) {
 					myAgentLime.setCanMove(false);
 				}
 			} if (myAgentLime.getCanMove()) {
 				ax += GameProperties.CHARACTER_STEP;
-				if (ax > GameProperties.SCREEN_WIDTH) {
-					ax = -1 * myAgentLime.getWidth();
-					dimensionCnt++;
-					if (dimensionCnt==2) {score+=5000;}
+				if (myFinish.getVisible() 
+						&& ax + myAgentLime.getWidth() + GameProperties.CHARACTER_STEP > FinishLabel.getX() 
+						&& ax + GameProperties.CHARACTER_STEP < FinishLabel.getX() + FinishLabel.getWidth() 
+						&& ay + myAgentLime.getHeight() > FinishLabel.getY() 
+						&& ay < FinishLabel.getY() + FinishLabel.getHeight()) {
+					score+=(50000+(timeLeft*1000));
+					won = true;
 				}
 			}
 		}
@@ -261,11 +298,11 @@ public class SteelCog extends JFrame implements KeyListener {
 		
 	}
 	
-	public void gameOver(int score,boolean isAlive,boolean isTimeOut) {
-		popup = new PopUpMessage(score,isAlive,isTimeOut);
+	public void gameOver(String name,int score,boolean isAlive,boolean isTimeOut) {
+		popup = new PopUpMessage(name,score,isAlive,isTimeOut);
 		popup.displayGUI();
-		database = new GameSQLite(score);
-		database.Interact(score);
+		database = new GameSQLite(name,score);
+		database.Interact(name,score);
 		System.exit(0);
 	}
 }
