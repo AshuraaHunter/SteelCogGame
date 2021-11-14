@@ -23,17 +23,22 @@ public class SteelCog extends JFrame implements KeyListener {
 	private Wall[] myWall = new Wall[6];
 	private LavaWall[] myLavaWall = new LavaWall[3];
 	private Finish myFinish;
+	private Box myBox;
+	private Goal myGoal;
+	private LavaWallStopBtn myStopBtn;
+	private FinishBtn myFinishBtn;
 	
-	private JLabel AgentLimeLabel, FinishLabel, TimeLabel;
+	private JLabel AgentLimeLabel, FinishLabel, BoxLabel, GoalLabel, StopBtnLabel, FinishBtnLabel, TimeLabel;
 	private JLabel[] WallLabel = new JLabel[6];
 	private JLabel[] LavaWallLabel = new JLabel[3];
-	private ImageIcon AgentLimeImage, WallImage, LavaWallImage, FinishImage;
+	private ImageIcon AgentLimeImage, WallImage, LavaWallImage, FinishImage, BoxImage, GoalImage, StopBtnImage, FinishBtnImage;
 	
 	private int[] xArray = new int[] {100,-100,560,40,560,590};
 	private int[] yArray = new int[] {370,370,400,40,0,100};
 	
 	private int score = 10000;
 	private int dimensionCnt = 0; // tracks the amount of times the player has phased across dimensions
+	private int stepCnt = 0; // tracks steps taken
 	
 	private String name;
 	
@@ -93,6 +98,36 @@ public class SteelCog extends JFrame implements KeyListener {
 		FinishLabel.setIcon(FinishImage);
 		FinishLabel.setSize(myFinish.getWidth(), myFinish.getHeight());
 		
+		myBox = new Box();
+		BoxLabel = new JLabel();
+		BoxImage = new ImageIcon(getClass().getResource(myBox.getFilename()));
+		BoxLabel.setIcon(BoxImage);
+		BoxLabel.setSize(myBox.getWidth(), myBox.getHeight());
+		
+		myGoal = new Goal();
+		GoalLabel = new JLabel();
+		GoalImage = new ImageIcon(getClass().getResource(myGoal.getFilename()));
+		GoalLabel.setIcon(GoalImage);
+		GoalLabel.setSize(myGoal.getWidth(), myGoal.getHeight());
+		
+		myStopBtn = new LavaWallStopBtn();
+		StopBtnLabel = new JLabel();
+		StopBtnImage = new ImageIcon(getClass().getResource(myStopBtn.getFilename()));
+		StopBtnLabel.setIcon(StopBtnImage);
+		StopBtnLabel.setSize(myStopBtn.getWidth(), myStopBtn.getHeight());
+		
+		myFinishBtn = new FinishBtn();
+		FinishBtnLabel = new JLabel();
+		FinishBtnImage = new ImageIcon(getClass().getResource(myFinishBtn.getFilename()));
+		FinishBtnLabel.setIcon(FinishBtnImage);
+		FinishBtnLabel.setSize(myFinishBtn.getWidth(), myFinishBtn.getHeight());
+		
+		TimeLabel = new JLabel();
+		TimeLabel.setForeground(Color.white);
+		TimeLabel.setFont(new Font("Power Red and Green",Font.BOLD,40));
+		TimeLabel.setSize(72,36);
+		TimeLabel.setLocation((int)(GameProperties.SCREEN_WIDTH*.46),10);
+		
 		content = getContentPane();
 		content.setBackground(Color.black);
 		setLayout(null);
@@ -105,8 +140,23 @@ public class SteelCog extends JFrame implements KeyListener {
 			myWall[i].setY(yArray[i]);
 		}
 		
-		myFinish.setX(700);
-		myFinish.setY(50);
+		// myFinish.setX(700);
+		// myFinish.setY(50);
+		myFinish.setX(9999);
+		myFinish.setY(9999);
+		myFinish.setVisible(false);
+		
+		myBox.setX(515);
+		myBox.setY(340);
+		
+		myGoal.setX(670);
+		myGoal.setY(475);
+		
+		myStopBtn.setX(368);
+		myStopBtn.setY(288);
+		
+		myFinishBtn.setX(750);
+		myFinishBtn.setY(520);
 		
 		add(AgentLimeLabel);
 		for (int i = 0; i < WallLabel.length; i++) {
@@ -116,13 +166,11 @@ public class SteelCog extends JFrame implements KeyListener {
 			add(LavaWallLabel[i]);
 		}
 		add(FinishLabel);
-		
-		TimeLabel = new JLabel();
+		add(BoxLabel);
+		add(GoalLabel);
+		add(StopBtnLabel);
+		add(FinishBtnLabel);
 		add(TimeLabel);
-		TimeLabel.setForeground(Color.white);
-		TimeLabel.setFont(new Font("Power Red and Green",Font.BOLD,40));
-		TimeLabel.setSize(72,36);
-		TimeLabel.setLocation((int)(GameProperties.SCREEN_WIDTH*.46),10);
 		
 		time = new Timer();
 		gameCheck = new Timer();
@@ -167,6 +215,10 @@ public class SteelCog extends JFrame implements KeyListener {
 			myLavaWall[i].move();
 		}
 		FinishLabel.setLocation(myFinish.getX(), myFinish.getY());
+		BoxLabel.setLocation(myBox.getX(), myBox.getY());
+		GoalLabel.setLocation(myGoal.getX(), myGoal.getY());
+		StopBtnLabel.setLocation(myStopBtn.getX(), myStopBtn.getY());
+		FinishBtnLabel.setLocation(myFinishBtn.getX(), myFinishBtn.getY());
 		
 		content.addKeyListener(this);
 		content.setFocusable(true);
@@ -189,6 +241,8 @@ public class SteelCog extends JFrame implements KeyListener {
 	public void keyPressed(KeyEvent e) {
 		int ax = myAgentLime.getX();
 		int ay = myAgentLime.getY();
+		int bx = myBox.getX();
+		int by = myBox.getY();
 		
 		// need to setup collision down here (i.e. looping through each wall to check for overlap)
 		// not sure how to do finish collision yet
@@ -206,10 +260,14 @@ public class SteelCog extends JFrame implements KeyListener {
 			}
 			if (myAgentLime.getCanMove()) {
 				ay -= GameProperties.CHARACTER_STEP;
+				stepCnt++;
 				if (ay + myAgentLime.getHeight() < 0) {
 					ay = GameProperties.SCREEN_HEIGHT;
 					dimensionCnt++;
 					if (dimensionCnt==3) {score+=5000;}
+				}
+				if (myBox.getVisible() && myAgentLime.r.intersects(myBox.getRectangle())) {
+					by -= GameProperties.CHARACTER_STEP;
 				}
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
@@ -223,10 +281,14 @@ public class SteelCog extends JFrame implements KeyListener {
 			}
 			if (myAgentLime.getCanMove()) {
 				ay += GameProperties.CHARACTER_STEP;
+				stepCnt++;
 				if (ay > GameProperties.SCREEN_HEIGHT) {
 					ay = -1 * myAgentLime.getHeight();
 					dimensionCnt++;
 					if (dimensionCnt==3) {score+=5000;}
+				}
+				if (myBox.getVisible() && myAgentLime.r.intersects(myBox.getRectangle())) {
+					by += GameProperties.CHARACTER_STEP;
 				}
 			}
 		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
@@ -238,17 +300,49 @@ public class SteelCog extends JFrame implements KeyListener {
 						|| ax - GameProperties.CHARACTER_STEP < 0) {
 					myAgentLime.setCanMove(false);
 				}
-			} if (myAgentLime.getCanMove()) {ax -= GameProperties.CHARACTER_STEP;}
+			} if (myAgentLime.getCanMove()) {
+				ax -= GameProperties.CHARACTER_STEP;
+				stepCnt++;
+				if (myBox.getVisible() && myAgentLime.r.intersects(myBox.getRectangle())) {
+					bx -= GameProperties.CHARACTER_STEP;
+				}
+			}
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			for (int i = 0; i < WallLabel.length; i++) {
 				if (ax + myAgentLime.getWidth() + GameProperties.CHARACTER_STEP > WallLabel[i].getX() 
 						&& ax + GameProperties.CHARACTER_STEP < WallLabel[i].getX() + WallLabel[i].getWidth() 
 						&& ay + myAgentLime.getHeight() > WallLabel[i].getY() 
 						&& ay < WallLabel[i].getY() + WallLabel[i].getHeight() 
-						|| ax + myAgentLime.getWidth() + GameProperties.CHARACTER_STEP >= GameProperties.SCREEN_WIDTH) {
+						|| ax + (myAgentLime.getWidth()*2) + GameProperties.CHARACTER_STEP >= GameProperties.SCREEN_WIDTH) {
 					myAgentLime.setCanMove(false);
 				}
-			} if (myAgentLime.getCanMove()) {ax += GameProperties.CHARACTER_STEP;}
+			} if (myAgentLime.getCanMove()) {
+				ax += GameProperties.CHARACTER_STEP;
+				stepCnt++;
+				if (myBox.getVisible() && myAgentLime.r.intersects(myBox.getRectangle())) {
+					bx += GameProperties.CHARACTER_STEP;
+				}
+			}
+		} else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+			if (myAgentLime.r.intersects(myStopBtn.getRectangle())) {
+				if (!myStopBtn.getIsOn()) {
+					myStopBtn.setIsOn(true);
+					myStopBtn.setWasOn(true);
+					for (int i = 0; i < myLavaWall.length; i++) {
+						myLavaWall[i].setMoving(false);
+					}
+				} else {
+					myStopBtn.setIsOn(false);
+					for (int i = 0; i < myLavaWall.length; i++) {
+						myLavaWall[i].setMoving(true);
+					}
+				}
+			} else if (myAgentLime.r.intersects(myFinishBtn.getRectangle())) {
+				myFinish.setX(700);
+				myFinish.setY(50);
+				myFinish.setVisible(true);
+				FinishLabel.setLocation(myFinish.getX(), myFinish.getY());
+			}
 		}
 		
 		myAgentLime.setX(ax);
@@ -256,8 +350,23 @@ public class SteelCog extends JFrame implements KeyListener {
 		
 		AgentLimeLabel.setLocation(myAgentLime.getX(), myAgentLime.getY());
 		
+		myBox.setX(bx);
+		myBox.setY(by);
+		
+		BoxLabel.setLocation(myBox.getX(), myBox.getY());
+		
+		if (myBox.getVisible() && myBox.r.intersects(myGoal.getRectangle())) {
+			myBox.setVisible(false); // don't know why but my visibility flag doesn't actually show/hide so I have to put it in an unseen spot
+			myBox.setX(9999);
+			myBox.setY(9999);
+			GoalLabel.setIcon(new ImageIcon(getClass().getResource("goalFull.png")));
+			score+=25000; // bonus for box puzzle
+		}
+		
 		if (myFinish.getVisible() && myAgentLime.r.intersects(myFinish.getRectangle())) {
 			score+=(50000+(timeLeft*1000));
+			if (!myStopBtn.getWasOn()) {score+=5000;} // bonus if player never stopped moving obstacles
+			if (stepCnt<250) {score+=10000;} // stealth bonus
 			won = true;
 		}
 		
